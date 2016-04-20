@@ -1,0 +1,6 @@
+node_modules
+typings
+build
+/app/*.js
+/app/*.js.map
+bundle.js.map
