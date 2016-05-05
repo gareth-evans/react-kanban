@@ -8,7 +8,7 @@ class KanbanApi {
         this.api_url = "http://kanbanapi.pro-react.com";
         this.headers = new Headers();
         this.headers.append("Content-Type", "application/json");
-        this.headers.append("Authorization", "graz26m");
+        this.headers.append("Authorization", "graz34m");
     }
 
     fetchCards() {
@@ -45,13 +45,13 @@ class KanbanApi {
         return fetch(this.api_url + "/cards/" + cardId + "/tasks", {
             method: "post",
             headers: this.headers,
-            body: JSON.stringify(task)
+            body: JSON.stringify({ name: task })
         })
             .then((response) => response.json());
     }
 
-    deleteTask(cardId: number, task: Model.Task): Promise<Response> {
-        return fetch(this.api_url + "/cards/" + cardId + "/tasks/" + task.id, {
+    deleteTask(cardId: number, taskId: number): Promise<Response> {
+        return fetch(this.api_url + "/cards/" + cardId + "/tasks/" + taskId, {
             method: "delete",
             headers: this.headers
         });

@@ -12,6 +12,7 @@ class CardStore extends ReduceStore<Model.Card[]> {
         return [];
     }
     reduce(state, action) {
+        let newState;
         let cardIndex: number, taskIndex: number;
 
         switch (action.type) {
@@ -72,21 +73,23 @@ class CardStore extends ReduceStore<Model.Card[]> {
                 });
             case Constants.CREATE_TASK:
                 cardIndex = this.getCardIndex(action.payload.cardId);
-                return update(this.getState(), {
+                newState = update(this.getState(), {
                     [cardIndex]: {
-                        tasks: { $push: [action.payload.task] }
+                        tasks: { $push: [{ name: action.payload.task }] }
                     }
                 });
+                return newState;
             case Constants.CREATE_TASK_SUCCESS:
                 cardIndex = this.getCardIndex(action.payload.cardId);
                 taskIndex = _.findIndex(this.getState()[cardIndex].tasks, (task) => task.id === action.payload.task.id);
-                return update(this.getState(), {
+                newState = update(this.getState(), {
                     [cardIndex]: {
                         tasks: {
                             [taskIndex]: { id: { $set: action.payload.response.id }}
                         }
                     }
                 });
+                return newState;
             case Constants.CREATE_TASK_ERROR:
                 cardIndex = this.getCardIndex(action.payload.cardId);
                 taskIndex = _.findIndex(this.getState()[cardIndex].tasks, (task) => task.id === action.payload.task.id);
@@ -99,7 +102,7 @@ class CardStore extends ReduceStore<Model.Card[]> {
                 cardIndex = this.getCardIndex(action.payload.cardId);
                 return update(this.getState(), {
                     [cardIndex]: {
-                        $splice: [[action.payload.taskIndex, 1]]
+                        tasks: { $splice: [[action.payload.taskIndex, 1]] }
                     }
                 });
             case Constants.DELETE_TASK_ERROR:
@@ -129,7 +132,7 @@ class CardStore extends ReduceStore<Model.Card[]> {
                 });
             case Constants.TOGGLE_CARD_DETAILS:
                 cardIndex = this.getCardIndex(action.payload.cardId);
-                let newState = update(this.getState(), {
+                newState = update(this.getState(), {
                     [cardIndex]: {
                         showDetails: { $apply: currentValue => (currentValue !== false) ? false : true}
                     }

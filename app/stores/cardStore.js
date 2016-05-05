@@ -14,6 +14,7 @@ define(["require", "exports", "../appDispatcher", "../constants", "flux/utils", 
             return [];
         };
         CardStore.prototype.reduce = function (state, action) {
+            var newState;
             var cardIndex, taskIndex;
             switch (action.type) {
                 case constants_1.Constants.FETCH_CARDS_SUCCESS:
@@ -78,16 +79,17 @@ define(["require", "exports", "../appDispatcher", "../constants", "flux/utils", 
                     ));
                 case constants_1.Constants.CREATE_TASK:
                     cardIndex = this.getCardIndex(action.payload.cardId);
-                    return update(this.getState(), (_f = {},
+                    newState = update(this.getState(), (_f = {},
                         _f[cardIndex] = {
-                            tasks: { $push: [action.payload.task] }
+                            tasks: { $push: [{ name: action.payload.task }] }
                         },
                         _f
                     ));
+                    return newState;
                 case constants_1.Constants.CREATE_TASK_SUCCESS:
                     cardIndex = this.getCardIndex(action.payload.cardId);
                     taskIndex = _.findIndex(this.getState()[cardIndex].tasks, function (task) { return task.id === action.payload.task.id; });
-                    return update(this.getState(), (_g = {},
+                    newState = update(this.getState(), (_g = {},
                         _g[cardIndex] = {
                             tasks: (_h = {},
                                 _h[taskIndex] = { id: { $set: action.payload.response.id } },
@@ -96,6 +98,7 @@ define(["require", "exports", "../appDispatcher", "../constants", "flux/utils", 
                         },
                         _g
                     ));
+                    return newState;
                 case constants_1.Constants.CREATE_TASK_ERROR:
                     cardIndex = this.getCardIndex(action.payload.cardId);
                     taskIndex = _.findIndex(this.getState()[cardIndex].tasks, function (task) { return task.id === action.payload.task.id; });
@@ -109,7 +112,7 @@ define(["require", "exports", "../appDispatcher", "../constants", "flux/utils", 
                     cardIndex = this.getCardIndex(action.payload.cardId);
                     return update(this.getState(), (_k = {},
                         _k[cardIndex] = {
-                            $splice: [[action.payload.taskIndex, 1]]
+                            tasks: { $splice: [[action.payload.taskIndex, 1]] }
                         },
                         _k
                     ));
@@ -145,7 +148,7 @@ define(["require", "exports", "../appDispatcher", "../constants", "flux/utils", 
                     ));
                 case constants_1.Constants.TOGGLE_CARD_DETAILS:
                     cardIndex = this.getCardIndex(action.payload.cardId);
-                    var newState = update(this.getState(), (_r = {},
+                    newState = update(this.getState(), (_r = {},
                         _r[cardIndex] = {
                             showDetails: { $apply: function (currentValue) { return (currentValue !== false) ? false : true; } }
                         },

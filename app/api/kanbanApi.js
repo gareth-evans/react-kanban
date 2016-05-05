@@ -5,7 +5,7 @@ define(["require", "exports", "whatwg-fetch"], function (require, exports) {
             this.api_url = "http://kanbanapi.pro-react.com";
             this.headers = new Headers();
             this.headers.append("Content-Type", "application/json");
-            this.headers.append("Authorization", "graz26m");
+            this.headers.append("Authorization", "graz34m");
         }
         KanbanApi.prototype.fetchCards = function () {
             return fetch(this.api_url + "/cards", { headers: this.headers })
@@ -37,12 +37,12 @@ define(["require", "exports", "whatwg-fetch"], function (require, exports) {
             return fetch(this.api_url + "/cards/" + cardId + "/tasks", {
                 method: "post",
                 headers: this.headers,
-                body: JSON.stringify(task)
+                body: JSON.stringify({ name: task })
             })
                 .then(function (response) { return response.json(); });
         };
-        KanbanApi.prototype.deleteTask = function (cardId, task) {
-            return fetch(this.api_url + "/cards/" + cardId + "/tasks/" + task.id, {
+        KanbanApi.prototype.deleteTask = function (cardId, taskId) {
+            return fetch(this.api_url + "/cards/" + cardId + "/tasks/" + taskId, {
                 method: "delete",
                 headers: this.headers
             });
