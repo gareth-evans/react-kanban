@@ -7,4 +7,5 @@ export interface Card {
     color: string;
     status: string;
     tasks: Task[];
+    showDetails?: boolean;
 }

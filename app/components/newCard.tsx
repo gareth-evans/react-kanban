@@ -2,48 +2,51 @@ import * as React from "react";
 import update = require("react-addons-update");
 import {History} from "react-router";
 
-import * as Model from "./model/model";
+import * as Model from "../model/model";
 import {CardForm} from "./cardForm";
-import {CardCallbacks} from "./cardCallbacks";
+import CardActionCreators from "../actions/cardActionCreators";
+
+import DraftStore from "../stores/draftStore";
+import {Container} from "flux/utils";
 
 interface Props {
-    cardCallbacks: CardCallbacks;
     history: History;
 }
+interface State {
+    draft: Model.Card;
+}
 
-export class NewCard extends React.Component<Props, Model.Card> {
-    constructor() {
-        super(arguments as any);
-        this.state = {
-            id: Date.now(),
-            title: "",
-            description: "",
-            status: "todo",
-            color: "#c9c9c9",
-            tasks: []
-        };
-    }
+class NewCard extends React.Component<Props, State> {
     handleChange(field: string, value: any) {
-        let newState = update(this.state, { [field] : { $set: value} });
-        this.setState(newState);
+        CardActionCreators.updateDraft(field, value);
     }
     handleSubmit(e) {
         e.preventDefault();
-        this.props.cardCallbacks.addCard(this.state);
+        CardActionCreators.addCard(this.state.draft);
         this.props.history.pushState(null, "/");
     }
     handleClose(e) {
         this.props.history.pushState(null, "/");
     }
+    componentDidMount() {
+        setTimeout(() => CardActionCreators.createDraft(), 0);
+    }
     render() {
         return (
             <CardForm
-                draftCard={this.state}
+                draftCard={this.state.draft}
                 buttonLabel="Create Card"
                 handleChange={this.handleChange.bind(this)}
                 handleClose={this.handleClose.bind(this)}
                 handleSubmit={this.handleSubmit.bind(this)}
             />
-        )
+        );
     }
+
+    static getStores = () => ([DraftStore]);
+    static calculateState = prevState => ({
+        draft: DraftStore.getState()
+    });
 }
+
+export default Container.create(NewCard);

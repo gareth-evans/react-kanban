@@ -1,17 +1,17 @@
 import * as React from "react";
-import * as Model from "./model/model";
-import {TaskCallbacks} from "./taskCallbacks";
+import * as Model from "../model/model";
+import {TaskCallbacks} from "../taskCallbacks";
+import TaskActionCreators from "../actions/taskActionCreators";
 
 interface Props {
     cardId: number;
     tasks: Model.Task[];
-    callbacks: TaskCallbacks;
 }
 
 export class CheckList extends React.Component<Props, any> {
     checkInputKeyPress(evt: any) {
         if (evt.key === "Enter") {
-            this.props.callbacks.add(this.props.cardId, evt.target.value);
+            TaskActionCreators.addTask(this.props.cardId, evt.target.value);
             evt.target.value = "";
         }
     }
@@ -22,11 +22,11 @@ export class CheckList extends React.Component<Props, any> {
                 <li className="checklist_task" key={task.id}>
                     <input type="checkbox"
                         checked={task.done}
-                        onChange={this.props.callbacks.toggle.bind(null, this.props.cardId, task.id, taskIndex)} />
+                        onChange={TaskActionCreators.toggleTask.bind(null, this.props.cardId, task.id, taskIndex)} />
                     {task.name}
                     <a href="#"
                         className="checklist_task--remove"
-                        onClick={this.props.callbacks.delete.bind(null, this.props.cardId, task.id, taskIndex)} />
+                        onClick={TaskActionCreators.deleteTask.bind(null, this.props.cardId, task.id, taskIndex)} />
                 </li>
            );
         });

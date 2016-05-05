@@ -1,5 +1,5 @@
 import * as React from "react";
-import * as Model from "./model/model";
+import * as Model from "../model/model";
 
 
 interface Props {

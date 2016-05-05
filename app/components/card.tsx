@@ -4,12 +4,14 @@ import * as React from "react";
 import * as marked from "marked";
 import {DragSource, DragSourceSpec, DragSourceCollector, ConnectDragSource, DropTargetSpec, DropTargetCollector, ConnectDropTarget, DropTarget} from "react-dnd";
 
-import * as Model from "./model/model";
-import {TaskCallbacks} from "./taskCallbacks";
-import {CardCallbacks} from "./cardCallbacks";
+import * as Model from "../model/model";
+import {TaskCallbacks} from "../taskCallbacks";
+import {CardCallbacks} from "../cardCallbacks";
 import {CheckList} from "./checkList";
-import {Constants} from "./constants";
+import {Constants} from "../constants";
 import {Link} from "react-router";
+
+import CardActionCreators from "../actions/cardActionCreators";
 
 interface Props {
     id: number;
@@ -17,16 +19,14 @@ interface Props {
     description: string;
     color: string;
     tasks: Model.Task[];
-    taskCallbacks: TaskCallbacks;
-    cardCallbacks: CardCallbacks;
     status: string;
     connectDragSource?: ConnectDragSource;
     isDragging?: () => boolean;
     connectDropTarget?: ConnectDropTarget;
+    showDetails?: boolean;
 }
 
 interface State {
-    showDetails: boolean;
 }
 
 let cardDragSpec: DragSourceSpec<Props> = {
@@ -36,14 +36,14 @@ let cardDragSpec: DragSourceSpec<Props> = {
         };
     },
     endDrag(props: Props) {
-        props.cardCallbacks.persistCardDrag(props.id, props.status);
+        CardActionCreators.persistCardDrag(props);
     }
 };
 
 let cardDropSpec: DropTargetSpec<Props> = {
     hover(props, monitor) {
         const draggedId = (monitor.getItem() as any).id;
-        props.cardCallbacks.updateCardPosition(draggedId, props.id);
+        CardActionCreators.updateCardPosition(draggedId, props.id);
     }
 };
 
@@ -61,29 +61,21 @@ let collectDrop: DropTargetCollector = (connect, monitor) => {
 };
 
 class Card extends React.Component<Props, State> {
-    constructor() {
-        super();
-        this.state = {
-            showDetails: false
-        };
-    }
-
     toggleDetails() {
-        this.setState({ showDetails: !this.state.showDetails });
+        CardActionCreators.toggleCardDetails(this.props.id);
     }
 
     render() {
         const {connectDragSource, isDragging, connectDropTarget} = this.props;
         let cardDetails;
 
-        if (this.state.showDetails) {
+        if (this.props.showDetails !== false) {
             cardDetails = (
                 <div className="card_details">
                     <span dangerouslySetInnerHTML={{ __html: marked(this.props.description) }} />
                     <CheckList
                         cardId={this.props.id}
-                        tasks={this.props.tasks}
-                        callbacks={this.props.taskCallbacks} />
+                        tasks={this.props.tasks} />
                 </div>);
         }
 
@@ -108,7 +100,7 @@ class Card extends React.Component<Props, State> {
                     <Link to={"/edit/" + this.props.id}>✎</Link>
                 </div>
                 <div
-                    className={this.state.showDetails ? "card_title card_title--is-open" : "card_title" }
+                    className={this.props.showDetails !== false ? "card_title card_title--is-open" : "card_title" }
                     onClick={this.toggleDetails.bind(this) }>
                     {this.props.title}</div>
                 <CSSTransitionGroup transitionName="toggle"

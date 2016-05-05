@@ -3,10 +3,10 @@ import {render} from "react-dom";
 import {Router, Route, Link, IndexRoute} from "react-router";
 
 import {Card} from "./model/Card";
-import {KanbanBoardContainer} from "./kanbanboardContainer";
-import KanbanBoard from "./kanbanboard";
-import {NewCard} from "./newCard";
-import {EditCard} from "./editCard";
+import KanbanBoardContainer from "./components/kanbanboardContainer";
+import KanbanBoard from "./components/kanbanboard";
+import NewCard from "./components/newCard";
+import EditCard from "./components/editCard";
 
 render(
     <Router>

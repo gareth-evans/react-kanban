@@ -3,44 +3,58 @@ import "lodash";
 import update = require("react-addons-update");
 import {History} from "react-router";
 
-import * as Model from "./model/model";
+import * as Model from "../model/model";
 import {CardForm} from "./cardForm";
-import {CardCallbacks} from "./cardCallbacks";
+import CardStore from "../stores/cardStore";
+import CardActionCreators from "../actions/cardActionCreators";
+
+import DraftStore from "../stores/draftStore";
+import {Container} from "flux/utils";
 
 interface Props {
     cards: Model.Card[];
-    cardCallbacks: CardCallbacks;
     history?: History;
     params?: any;
 }
 
-export class EditCard extends React.Component<Props, Model.Card> {
-    componentWillMount() {
-        let cardId = Number(this.props.params.card_id);
-        if (cardId === NaN) { throw new Error("card_id is not a number"); }
-        let card = _.find(this.props.cards, (card) => card.id === cardId);
-        this.setState(card);
-    }
+interface State {
+    draft?: Model.Card;
+}
+
+export class EditCard extends React.Component<Props, State> {
     handleChange(field: string, value: any) {
-        let newState = update(this.state, { [field] : { $set: value }});
-        this.setState(newState);
+        CardActionCreators.updateDraft(field, value);
     }
     handleSubmit(e) {
         e.preventDefault();
-        this.props.cardCallbacks.updateCard(this.state);
+        CardActionCreators.updateCard(CardStore.getCard(parseInt(this.props.params.card_id)),
+            this.state.draft);
         this.props.history.pushState(null, "/");
     }
     handleClose(e) {
         this.props.history.pushState(null, "/");
     }
+    componentDidMount() {
+        setTimeout(() => {
+            CardActionCreators.createDraft(CardStore.getCard(parseInt(this.props.params.card_id)));
+        }, 0);
+    }
     render() {
         return (
             <CardForm
                 buttonLabel="Edit Card"
-                draftCard={this.state}
+                draftCard={this.state.draft}
                 handleChange={this.handleChange.bind(this)}
                 handleSubmit={this.handleSubmit.bind(this)}
                 handleClose={this.handleClose.bind(this)} />
         );
     }
+    static getStores = () => ([DraftStore]);
+    static calculateState = prevState => {
+        return {
+            draft: DraftStore.getState()
+        };
+    };
 }
+
+export default Container.create(EditCard);

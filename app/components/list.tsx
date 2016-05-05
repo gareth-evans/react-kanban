@@ -1,25 +1,22 @@
 import * as React from "react";
-import * as Model from "./model/model";
+import * as Model from "../model/model";
 import Card from "./card";
-import {TaskCallbacks} from "./taskCallbacks";
-import {CardCallbacks} from "./cardCallbacks";
 import {DropTarget, DropTargetSpec, DropTargetMonitor, DropTargetCollector} from "react-dnd";
-import {Constants} from "./constants";
+import {Constants} from "../constants";
+import CardActionCreators from "../actions/cardActionCreators";
 
 interface Props {
     id: string;
     title: string;
     cards: Model.Card[];
-    taskCallbacks: TaskCallbacks;
-    cardCallbacks: CardCallbacks;
     connectDropTarget?: any;
     isOver?: () => boolean;
 }
 
 const listTargetSpec: DropTargetSpec<Props> = {
     hover(props: Props, monitor: DropTargetMonitor) {
-        const draggedId = (monitor.getItem() as any).id;
-        props.cardCallbacks.updateCardStatus(draggedId, props.id);
+        const dragged = (monitor.getItem() as any);
+        CardActionCreators.updateCardStatus(dragged.id, props.id);
     }
 };
 
@@ -44,9 +41,8 @@ class List extends React.Component<Props, any> {
                     description={card.description}
                     color={card.color}
                     tasks={card.tasks}
-                    taskCallbacks={this.props.taskCallbacks}
-                    cardCallbacks={this.props.cardCallbacks}
                     status={card.status}
+                    showDetails={card.showDetails}
                 />
                 </div>); });
         return connectDropTarget(
